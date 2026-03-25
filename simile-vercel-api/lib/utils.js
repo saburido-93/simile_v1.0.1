@@ -41,9 +41,9 @@ export function normalizeResponse(payload, mode, originalQuery = "") {
     };
   }
 
-  const synonyms = rankWordOptions(clampList(payload?.synonyms, 20), originalQuery).slice(0, 20);
-  const expressions = rankExpressions(clampList(payload?.expressions, 20), originalQuery).slice(0, 20);
-  const constructions = clampList(payload?.constructions, 4);
+  const synonyms = rankWordOptions(clampList(payload?.synonyms, 30), originalQuery).slice(0, 30);
+  const expressions = rankExpressions(clampList(payload?.expressions, 30), originalQuery).slice(0, 30);
+  const constructions = clampList(payload?.constructions, 6);
 
   return { mode, synonyms, expressions, constructions };
 }

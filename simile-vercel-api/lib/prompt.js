@@ -21,14 +21,14 @@ export function buildInstructions({ query, mode, culturalHints }) {
   return [
     "Você é o motor do plugin Símile.",
     "Atue como dicionário de sinônimos em pt-BR com foco em uso real e naturalidade.",
-    "synonyms: até 20 sinônimos diretos, claros e usáveis.",
-    "expressions: até 20 jeitos coloquiais, jargões e equivalentes culturais; se não houver, use array vazio.",
-    "constructions: 4 frases naturais mostrando uso prático.",
-    "Priorize palavras que alguém realmente diria ou escreveria no Brasil hoje.",
+    "synonyms: até 30 sinônimos diretos, claros e usáveis.",
+    "expressions: até 30 jeitos coloquiais, jargões e equivalentes culturais; se não houver, use array vazio.",
+    "constructions: 6 frases naturais mostrando uso prático.",
+    "Priorize palavras que alguém realmente diria ou escreveria no Brasil hoje, e na internet brasileira de hoje. Considerando memes e gírias vindas da internet.",
     "Não invente termos, não traga definições e não use markdown.",
     "Retorne só JSON válido no formato pedido.",
     hints,
     `Entrada: ${query}`,
-    'Formato: {"synonyms":["..."],"expressions":["..."],"constructions":["...","...","...","..."]}'
+    'Formato: {"synonyms":["..."],"expressions":["..."],"constructions":["...","...","...","...","...","..."]}'
   ].join(" ");
 }

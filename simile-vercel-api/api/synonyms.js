@@ -20,9 +20,9 @@ export default async function handler(req, res) {
   const userPrompt = isPhrase
     ? `Dê 10 variações de sinônimos para a frase completa: "${query}". Retorne apenas: {"sinonimos": ["frase1", "frase2", ...]}`
     : `Para a palavra "${query}", forneça:
-       1. Até 20 sinônimos diretos.
-       2. Até 20 expressões, jargões ou formas culturais/dia a dia de falar (sinônimos culturais).
-       3. 4 frases reais (construções) usando variações da palavra original, escritas como as pessoas realmente falam.
+       1. Até 30 sinônimos diretos.
+       2. Até 30 expressões, jargões ou formas culturais/dia a dia de falar (sinônimos culturais).
+       3. 6 frases reais (construções) usando variações da palavra original, escritas como as pessoas realmente falam em situações cotidianas.
        Retorne no formato: {"sinonimos": [], "expressoes": [], "construcoes": []}`;
 
   try {
