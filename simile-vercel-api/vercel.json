@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/synonyms.js": {
+      "maxDuration": 15
+    }
+  }
+}
