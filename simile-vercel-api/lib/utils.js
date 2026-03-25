@@ -12,7 +12,8 @@ export function inferMode(query = "") {
   return countWords(query) > 1 ? "phrase" : "word";
 }
 
-export function clampList(items = [], max = 20) {
+// CORREÇÃO: Aumentado o padrão máximo para 30 para não cortar listas antecipadamente
+export function clampList(items = [], max = 30) {
   const seen = new Set();
   const out = [];
   for (const item of items || []) {
@@ -41,6 +42,7 @@ export function normalizeResponse(payload, mode, originalQuery = "") {
     };
   }
 
+  // Já estava 30 aqui para o retorno da API, o problema era o fallback local
   const synonyms = rankWordOptions(clampList(payload?.synonyms, 30), originalQuery).slice(0, 30);
   const expressions = rankExpressions(clampList(payload?.expressions, 30), originalQuery).slice(0, 30);
   const constructions = clampList(payload?.constructions, 6);
@@ -55,7 +57,7 @@ export function getCulturalHints(query = "") {
     return clampList([
       ...(direct.synonyms || []),
       ...(direct.expressions || [])
-    ], 12);
+    ], 12); // Hints internos podem continuar curtos
   }
 
   const tokens = key.split(/\s+/).filter(Boolean);
@@ -73,11 +75,14 @@ export function getDirectWordResult(query = "") {
   const entry = getWordEntry(key);
   if (!entry) return null;
 
-  const synonyms = rankWordOptions(clampList(entry.synonyms, 20), key).slice(0, 20);
-  const expressions = rankExpressions(clampList(entry.expressions, 20), key).slice(0, 20);
+  // CORREÇÃO: Alterado de 20 para 30
+  const synonyms = rankWordOptions(clampList(entry.synonyms, 30), key).slice(0, 30);
+  const expressions = rankExpressions(clampList(entry.expressions, 30), key).slice(0, 30);
+  
+  // CORREÇÃO: Alterado o limite de construções de 4 para 6
   const constructions = clampList(
     entry.constructions?.length ? entry.constructions : buildConstructions(key, [...synonyms, ...expressions].slice(0, 4)),
-    4
+    6 
   );
 
   return {
@@ -149,15 +154,17 @@ export function buildFallbackWordPayload(query = "") {
   if (direct) return direct;
 
   const hints = getCulturalHints(query);
-  const rankedSynonyms = rankWordOptions(hints.filter((item) => !/\s/.test(item)).slice(0, 20), query).slice(0, 20);
-  const rankedExpressions = rankExpressions(hints.filter((item) => /\s/.test(item)).slice(0, 20), query).slice(0, 20);
+  // CORREÇÃO: Alterado de 20 para 30 aqui também por consistência, 
+  // caso a IA falhe e seja necessário montar um payload mesclado
+  const rankedSynonyms = rankWordOptions(hints.filter((item) => !/\s/.test(item)).slice(0, 30), query).slice(0, 30);
+  const rankedExpressions = rankExpressions(hints.filter((item) => /\s/.test(item)).slice(0, 30), query).slice(0, 30);
   const merged = clampList([...rankedSynonyms, ...rankedExpressions], 8);
 
   return {
     mode: "word",
     synonyms: rankedSynonyms,
     expressions: rankedExpressions,
-    constructions: buildConstructions(cleanQuery(query).toLowerCase(), merged.slice(0, 4))
+    constructions: buildConstructions(cleanQuery(query).toLowerCase(), merged.slice(0, 6)) // Alterado de 4 para 6
   };
 }
 
@@ -171,13 +178,15 @@ export function buildFallbackPhrasePayload(query = "") {
 }
 
 function buildConstructions(query, items = []) {
-  const base = items.filter(Boolean).slice(0, 4);
+  const base = items.filter(Boolean).slice(0, 6); // Alterado de 4 para 6
   if (!base.length) {
     return [
       `Isso aqui tem a mesma vibe de ${query}.`,
       `No dia a dia, dá para trocar ${query} sem perder o sentido.`,
       `Se quiser soar mais natural, vale variar ${query}.`,
-      `Dependendo do contexto, ${query} pode ganhar outra cara.`
+      `Dependendo do contexto, ${query} pode ganhar outra cara.`,
+      `Uma alternativa é usar algo parecido com ${query}.`, // Frase extra 5
+      `Na fala coloquial, ${query} pode ser adaptado.`      // Frase extra 6
     ];
   }
 
@@ -185,7 +194,9 @@ function buildConstructions(query, items = []) {
     (item) => `Hoje eu iria de ${item}, soa mais natural.`,
     (item) => `No papo do dia a dia, ${item} funciona bem.`,
     (item) => `Se quiser variar, dá para trocar por ${item}.`,
-    (item) => `Em contexto real, ${item} entra redondo.`
+    (item) => `Em contexto real, ${item} entra redondo.`,
+    (item) => `Para um texto mais limpo, teste ${item}.`,     // Template extra 5
+    (item) => `Você pode usar ${item} para soar mais fluido.` // Template extra 6
   ];
 
   return base.map((item, index) => templates[index](item));
